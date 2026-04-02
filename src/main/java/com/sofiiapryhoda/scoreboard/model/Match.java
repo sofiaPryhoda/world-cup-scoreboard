@@ -1,6 +1,6 @@
 package com.sofiiapryhoda.scoreboard.model;
 
-import com.sofiiapryhoda.scoreboard.exception.InvalidMatchException;
+import com.sofiiapryhoda.scoreboard.exception.InvalidScoreException;
 
 public class Match {
     private final String homeTeam;
@@ -37,11 +37,11 @@ public class Match {
 
     public void updateScore(int newHomeScore, int newAwayScore) {
         if (newHomeScore < 0 || newAwayScore < 0) {
-            throw new InvalidMatchException("Scores must be non-negative");
+            throw new InvalidScoreException("Scores must be non-negative");
         }
 
         if (newHomeScore < this.homeScore || newAwayScore < this.awayScore) {
-            throw new InvalidMatchException("Scores cannot decrease");
+            throw new InvalidScoreException("Scores cannot decrease");
         }
         this.homeScore = newHomeScore;
         this.awayScore = newAwayScore;

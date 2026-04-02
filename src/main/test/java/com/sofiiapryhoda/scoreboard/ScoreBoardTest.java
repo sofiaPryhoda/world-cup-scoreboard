@@ -1,6 +1,7 @@
 package com.sofiiapryhoda.scoreboard;
 
 import com.sofiiapryhoda.scoreboard.exception.InvalidMatchException;
+import com.sofiiapryhoda.scoreboard.exception.InvalidScoreException;
 import com.sofiiapryhoda.scoreboard.exception.MatchAlreadyExistException;
 import com.sofiiapryhoda.scoreboard.exception.MatchNotFoundException;
 import com.sofiiapryhoda.scoreboard.model.Match;
@@ -77,7 +78,7 @@ class ScoreBoardTest {
     @Test
     void testShouldNotAllowNegativeScores() {
         scoreBoard.startMatch(TEAM_A, TEAM_B);
-        assertThrows(InvalidMatchException.class, () -> scoreBoard.updateScore(TEAM_A, TEAM_B, -1, 1));
+        assertThrows(InvalidScoreException.class, () -> scoreBoard.updateScore(TEAM_A, TEAM_B, -1, 1));
     }
 
     @Test
@@ -85,7 +86,7 @@ class ScoreBoardTest {
         scoreBoard.startMatch(TEAM_A, TEAM_B);
         scoreBoard.updateScore(TEAM_A, TEAM_B, 3, 2);
 
-        assertThrows(InvalidMatchException.class, () -> scoreBoard.updateScore(TEAM_A, TEAM_B, 2, 1));
+        assertThrows(InvalidScoreException.class, () -> scoreBoard.updateScore(TEAM_A, TEAM_B, 2, 1));
     }
 
     private static Stream<Arguments> invalidTeamsNamesTestData() {
