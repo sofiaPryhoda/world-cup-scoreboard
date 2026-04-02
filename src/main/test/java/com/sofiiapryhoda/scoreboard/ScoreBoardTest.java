@@ -2,6 +2,7 @@ package com.sofiiapryhoda.scoreboard;
 
 import com.sofiiapryhoda.scoreboard.exception.InvalidMatchException;
 import com.sofiiapryhoda.scoreboard.exception.MatchAlreadyExistException;
+import com.sofiiapryhoda.scoreboard.exception.MatchNotFoundException;
 import com.sofiiapryhoda.scoreboard.model.Match;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,6 +67,25 @@ class ScoreBoardTest {
        Match match = matches.get(0);
        assertEquals(1, match.getHomeScore());
        assertEquals(1, match.getAwayScore());
+    }
+
+    @Test
+    void testShouldNotAllowUpdateScoreForNonExistingTeam() {
+        assertThrows(MatchNotFoundException.class, () -> scoreBoard.updateScore(TEAM_A, TEAM_B, -1, 1));
+    }
+
+    @Test
+    void testShouldNotAllowNegativeScores() {
+        scoreBoard.startMatch(TEAM_A, TEAM_B);
+        assertThrows(InvalidMatchException.class, () -> scoreBoard.updateScore(TEAM_A, TEAM_B, -1, 1));
+    }
+
+    @Test
+    void testShouldNotAllowDecreaseScores() {
+        scoreBoard.startMatch(TEAM_A, TEAM_B);
+        scoreBoard.updateScore(TEAM_A, TEAM_B, 3, 2);
+
+        assertThrows(InvalidMatchException.class, () -> scoreBoard.updateScore(TEAM_A, TEAM_B, 2, 1));
     }
 
     private static Stream<Arguments> invalidTeamsNamesTestData() {
