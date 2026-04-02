@@ -45,7 +45,9 @@ class ScoreBoardTest {
     void testStartMatchShouldNotAllowDuplicateMatches() {
         scoreBoard.startMatch(TEAM_A, TEAM_B);
 
-        assertThrows(MatchAlreadyExistException.class, () -> scoreBoard.startMatch(TEAM_A, TEAM_C));
+        MatchAlreadyExistException exception = assertThrows(MatchAlreadyExistException.class, () -> scoreBoard.startMatch(TEAM_A, TEAM_C));
+
+        assertEquals("Cannot start match. TeamA or TeamC already playing", exception.getMessage());
     }
 
     @Test
@@ -55,8 +57,10 @@ class ScoreBoardTest {
 
     @ParameterizedTest
     @MethodSource("invalidTeamsNamesTestData")
-    void testShouldNotAllowStartMatchWithInvalidTeamName(String homeTeam, String awayTeam) {
-        assertThrows(InvalidMatchException.class, () -> scoreBoard.startMatch(homeTeam, awayTeam));
+    void testShouldNotAllowStartMatchWithInvalidTeamName(String homeTeam, String awayTeam, String expectedErrorMessage) {
+        InvalidMatchException exception = assertThrows(InvalidMatchException.class, () -> scoreBoard.startMatch(homeTeam, awayTeam));
+
+        assertEquals(expectedErrorMessage, exception.getMessage());
     }
 
     @Test
@@ -72,13 +76,18 @@ class ScoreBoardTest {
 
     @Test
     void testShouldNotAllowUpdateScoreForNonExistingTeam() {
-        assertThrows(MatchNotFoundException.class, () -> scoreBoard.updateScore(TEAM_A, TEAM_B, -1, 1));
+        MatchNotFoundException exception = assertThrows(MatchNotFoundException.class, () -> scoreBoard.updateScore(TEAM_A, TEAM_B, -1, 1));
+
+        assertEquals(getExpectedErrorMessageForNonFoundMatch(TEAM_A, TEAM_B), exception.getMessage());
     }
 
     @Test
     void testShouldNotAllowNegativeScores() {
         scoreBoard.startMatch(TEAM_A, TEAM_B);
-        assertThrows(InvalidScoreException.class, () -> scoreBoard.updateScore(TEAM_A, TEAM_B, -1, 1));
+
+        InvalidScoreException exception = assertThrows(InvalidScoreException.class, () -> scoreBoard.updateScore(TEAM_A, TEAM_B, -1, 1));
+
+        assertEquals("Scores must be non-negative", exception.getMessage());
     }
 
     @Test
@@ -86,7 +95,9 @@ class ScoreBoardTest {
         scoreBoard.startMatch(TEAM_A, TEAM_B);
         scoreBoard.updateScore(TEAM_A, TEAM_B, 3, 2);
 
-        assertThrows(InvalidScoreException.class, () -> scoreBoard.updateScore(TEAM_A, TEAM_B, 2, 1));
+        InvalidScoreException exception = assertThrows(InvalidScoreException.class, () -> scoreBoard.updateScore(TEAM_A, TEAM_B, 2, 1));
+
+        assertEquals("Scores cannot decrease", exception.getMessage());
     }
 
     @Test
@@ -108,27 +119,37 @@ class ScoreBoardTest {
 
     @Test
     void testShouldNotAllowFinishNonExistingMatch() {
-        assertThrows(MatchNotFoundException.class, () -> scoreBoard.finishMatch(TEAM_A, TEAM_B));
+        MatchNotFoundException exception = assertThrows(MatchNotFoundException.class, () -> scoreBoard.finishMatch(TEAM_A, TEAM_B));
+
+        assertEquals(getExpectedErrorMessageForNonFoundMatch(TEAM_A, TEAM_B), exception.getMessage());
     }
 
     @Test
     void testShouldNotAllowFinishMatchWithSameTeams() {
         scoreBoard.startMatch(TEAM_A, TEAM_B);
 
-        assertThrows(MatchNotFoundException.class, () -> scoreBoard.finishMatch(TEAM_A, TEAM_A));
+        MatchNotFoundException exception = assertThrows(MatchNotFoundException.class, () -> scoreBoard.finishMatch(TEAM_A, TEAM_A));
+
+        assertEquals(getExpectedErrorMessageForNonFoundMatch(TEAM_A, TEAM_A), exception.getMessage());
     }
 
     @ParameterizedTest
     @MethodSource("invalidTeamsNamesTestData")
     void testShouldNotAllowFinishMatchWithInvalidTeamName(String homeTeam, String awayTeam) {
-        assertThrows(MatchNotFoundException.class, () -> scoreBoard.finishMatch(homeTeam, awayTeam));
+        MatchNotFoundException exception = assertThrows(MatchNotFoundException.class, () -> scoreBoard.finishMatch(homeTeam, awayTeam));
+
+        assertEquals(getExpectedErrorMessageForNonFoundMatch(homeTeam, awayTeam), exception.getMessage());
     }
 
     private static Stream<Arguments> invalidTeamsNamesTestData() {
         return Stream.of(
-            Arguments.of("Team@123", TEAM_C),
-            Arguments.of("", TEAM_C),
-            Arguments.of("  ", TEAM_C)
+            Arguments.of("Team@123", TEAM_C, "Team name must start from capital letter and contain only letters and spaces"),
+            Arguments.of("", TEAM_C, "Team name cannot be null or empty"),
+            Arguments.of("  ", TEAM_C, "Team name cannot be null or empty")
         );
+    }
+
+    private String getExpectedErrorMessageForNonFoundMatch(String homeTeam, String awayTeam) {
+        return "Match between " + homeTeam + " and " + awayTeam + " not found";
     }
 }

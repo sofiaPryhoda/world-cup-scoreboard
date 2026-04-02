@@ -34,7 +34,7 @@ public class ScoreBoard {
             .filter(m -> m.getHomeTeam().equalsIgnoreCase(homeTeam)
                 && m.getAwayTeam().equalsIgnoreCase(awayTeam))
             .findFirst()
-            .orElseThrow(() -> new MatchNotFoundException("Match between " + homeTeam + " and" + awayTeam + " not found"));
+            .orElseThrow(() -> new MatchNotFoundException("Match between " + homeTeam + " and " + awayTeam + " not found"));
     }
 
     private boolean isTeamInActiveMatch(String homeTeam, String awayTeam) {
