@@ -46,4 +46,15 @@ public class Match {
         this.homeScore = newHomeScore;
         this.awayScore = newAwayScore;
     }
+
+    @Override
+    public String toString() {
+        return "Match{" +
+            "homeTeam='" + homeTeam + '\'' +
+            ", awayTeam='" + awayTeam + '\'' +
+            ", startTime=" + startTime +
+            ", homeScore=" + homeScore +
+            ", awayScore=" + awayScore +
+            '}';
+    }
 }

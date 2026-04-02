@@ -29,6 +29,10 @@ public class ScoreBoard {
         this.matches.remove(match);
     }
 
+    public List<Match> getSummary() {
+        return List.of();
+    }
+
     private Match findMatch(String homeTeam, String awayTeam) {
         return this.matches.stream()
             .filter(m -> m.getHomeTeam().equalsIgnoreCase(homeTeam)
