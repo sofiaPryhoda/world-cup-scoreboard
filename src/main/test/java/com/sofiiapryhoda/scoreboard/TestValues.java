@@ -1,0 +1,6 @@
+package com.sofiiapryhoda.scoreboard;
+
+public class TestValues {
+    public static String TEAM_A = "TeamA";
+    public static String TEAM_B = "TeamB";
+}
