@@ -19,6 +19,10 @@ public class ScoreBoard {
         this.matches.add(new Match(homeTeam, awayTeam, System.currentTimeMillis()));
     }
 
+    public void updateScore(String homeTeam, String awayTeam, int homeScore, int awayScore) {
+
+    }
+
     private boolean isTeamInActiveMatch(String homeTeam, String awayTeam) {
         return this.matches.stream()
             .anyMatch(m ->

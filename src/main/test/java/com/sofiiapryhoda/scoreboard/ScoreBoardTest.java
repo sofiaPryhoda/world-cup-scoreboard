@@ -57,6 +57,17 @@ class ScoreBoardTest {
         assertThrows(InvalidMatchException.class, () -> scoreBoard.startMatch(homeTeam, awayTeam));
     }
 
+    @Test
+    void testShouldUpdateScore() {
+       scoreBoard.startMatch(TEAM_A, TEAM_B);
+       scoreBoard.updateScore(TEAM_A, TEAM_B, 1, 1);
+
+       List<Match> matches = scoreBoard.getMatches();
+       Match match = matches.get(0);
+       assertEquals(1, match.getHomeScore());
+       assertEquals(1, match.getAwayScore());
+    }
+
     private static Stream<Arguments> invalidTeamsNamesTestData() {
         return Stream.of(
             Arguments.of("Team@123", TEAM_C),
