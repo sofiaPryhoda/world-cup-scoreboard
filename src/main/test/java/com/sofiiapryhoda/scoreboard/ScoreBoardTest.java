@@ -1,10 +1,16 @@
 package com.sofiiapryhoda.scoreboard;
 
+import com.sofiiapryhoda.scoreboard.exception.InvalidMatchException;
+import com.sofiiapryhoda.scoreboard.exception.MatchAlreadyExistException;
 import com.sofiiapryhoda.scoreboard.model.Match;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.sofiiapryhoda.scoreboard.TestValues.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,29 +43,25 @@ class ScoreBoardTest {
     void testStartMatchShouldNotAllowDuplicateMatches() {
         scoreBoard.startMatch(TEAM_A, TEAM_B);
 
-        assertThrows(RuntimeException.class, () -> scoreBoard.startMatch(TEAM_A, TEAM_C));
+        assertThrows(MatchAlreadyExistException.class, () -> scoreBoard.startMatch(TEAM_A, TEAM_C));
     }
 
     @Test
     void testShouldNotAllowStartMatchWithSameTeam() {
-        scoreBoard.startMatch(TEAM_A, TEAM_B);
-
-        assertThrows(RuntimeException.class, () -> scoreBoard.startMatch(TEAM_A, TEAM_C));
+        assertThrows(MatchAlreadyExistException.class, () -> scoreBoard.startMatch(TEAM_A, TEAM_A));
     }
 
-    @Test
-    void testShouldNotAllowStartMatchWithInvalidTeamName() {
-        assertThrows(RuntimeException.class, () -> scoreBoard.startMatch("Team@123", TEAM_C));
-
+    @ParameterizedTest
+    @MethodSource("invalidTeamsNamesTestData")
+    void testShouldNotAllowStartMatchWithInvalidTeamName(String homeTeam, String awayTeam) {
+        assertThrows(InvalidMatchException.class, () -> scoreBoard.startMatch(homeTeam, awayTeam));
     }
 
-    @Test
-    void testShouldNotAllowStartMatchWithEmptyTeamName() {
-        assertThrows(RuntimeException.class, () -> scoreBoard.startMatch("", TEAM_C));
-    }
-
-    @Test
-    void testShouldNotAllowStartMatchWithBlankTeamName() {
-        assertThrows(RuntimeException.class, () -> scoreBoard.startMatch("  ", TEAM_C));
+    private static Stream<Arguments> invalidTeamsNamesTestData() {
+        return Stream.of(
+            Arguments.of("Team@123", TEAM_C),
+            Arguments.of("", TEAM_C),
+            Arguments.of("  ", TEAM_C)
+        );
     }
 }
