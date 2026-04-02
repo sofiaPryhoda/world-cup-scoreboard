@@ -1,5 +1,7 @@
 package com.sofiiapryhoda.scoreboard.model;
 
+import com.sofiiapryhoda.scoreboard.exception.InvalidMatchException;
+
 public class Match {
     private final String homeTeam;
     private final String awayTeam;
@@ -31,5 +33,17 @@ public class Match {
 
     public int getAwayScore() {
         return awayScore;
+    }
+
+    public void updateScore(int newHomeScore, int newAwayScore) {
+        if (newHomeScore < 0 || newAwayScore < 0) {
+            throw new InvalidMatchException("Scores must be non-negative");
+        }
+
+        if (newHomeScore < this.homeScore || newAwayScore < this.awayScore) {
+            throw new InvalidMatchException("Scores cannot decrease");
+        }
+        this.homeScore = newHomeScore;
+        this.awayScore = newAwayScore;
     }
 }

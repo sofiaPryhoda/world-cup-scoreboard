@@ -1,6 +1,7 @@
 package com.sofiiapryhoda.scoreboard;
 
 import com.sofiiapryhoda.scoreboard.exception.MatchAlreadyExistException;
+import com.sofiiapryhoda.scoreboard.exception.MatchNotFoundException;
 import com.sofiiapryhoda.scoreboard.model.Match;
 import com.sofiiapryhoda.scoreboard.validation.MatchInputValidator;
 
@@ -20,7 +21,15 @@ public class ScoreBoard {
     }
 
     public void updateScore(String homeTeam, String awayTeam, int homeScore, int awayScore) {
+        this.findMatch(homeTeam, awayTeam).updateScore(homeScore, awayScore);
+    }
 
+    private Match findMatch(String homeTeam, String awayTeam) {
+        return this.matches.stream()
+            .filter(m -> m.getHomeTeam().equalsIgnoreCase(homeTeam)
+                && m.getAwayTeam().equalsIgnoreCase(awayTeam))
+            .findFirst()
+            .orElseThrow(() -> new MatchNotFoundException("Match between " + homeTeam + " and" + awayTeam + " not found"));
     }
 
     private boolean isTeamInActiveMatch(String homeTeam, String awayTeam) {
