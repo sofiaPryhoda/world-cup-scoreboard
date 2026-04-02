@@ -25,7 +25,8 @@ public class ScoreBoard {
     }
 
     public void finishMatch(String homeTeam, String awayTeam) {
-
+        Match match = this.findMatch(homeTeam, awayTeam);
+        this.matches.remove(match);
     }
 
     private Match findMatch(String homeTeam, String awayTeam) {
