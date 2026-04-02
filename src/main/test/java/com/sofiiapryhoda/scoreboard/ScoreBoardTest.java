@@ -89,6 +89,41 @@ class ScoreBoardTest {
         assertThrows(InvalidScoreException.class, () -> scoreBoard.updateScore(TEAM_A, TEAM_B, 2, 1));
     }
 
+    @Test
+    void testShouldRemoveMatchOnceFinished() {
+        scoreBoard.startMatch(TEAM_A, TEAM_B);
+        scoreBoard.startMatch(TEAM_C, TEAM_D);
+
+        List<Match> matches = scoreBoard.getMatches();
+        assertEquals(2, matches.size());
+
+        scoreBoard.finishMatch(TEAM_A, TEAM_B);
+
+        assertEquals(1, matches.size());
+
+        Match match = matches.get(0);
+        assertEquals(TEAM_A, match.getHomeTeam());
+        assertEquals(TEAM_D, match.getAwayTeam());
+    }
+
+    @Test
+    void testShouldNotAllowFinishNonExistingMatch() {
+        assertThrows(Exception.class, () -> scoreBoard.finishMatch(TEAM_A, TEAM_B));
+    }
+
+    @Test
+    void testShouldNotAllowFinishMatchWithSameTeams() {
+        scoreBoard.startMatch(TEAM_A, TEAM_B);
+
+        assertThrows(Exception.class, () -> scoreBoard.finishMatch(TEAM_A, TEAM_A));
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidTeamsNamesTestData")
+    void testShouldNotAllowFinishMatchWithInvalidTeamName(String homeTeam, String awayTeam) {
+        assertThrows(Exception.class, () -> scoreBoard.finishMatch(homeTeam, awayTeam));
+    }
+
     private static Stream<Arguments> invalidTeamsNamesTestData() {
         return Stream.of(
             Arguments.of("Team@123", TEAM_C),

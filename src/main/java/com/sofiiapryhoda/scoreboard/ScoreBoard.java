@@ -24,6 +24,10 @@ public class ScoreBoard {
         this.findMatch(homeTeam, awayTeam).updateScore(homeScore, awayScore);
     }
 
+    public void finishMatch(String homeTeam, String awayTeam) {
+
+    }
+
     private Match findMatch(String homeTeam, String awayTeam) {
         return this.matches.stream()
             .filter(m -> m.getHomeTeam().equalsIgnoreCase(homeTeam)
