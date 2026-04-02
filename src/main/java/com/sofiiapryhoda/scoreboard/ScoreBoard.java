@@ -6,6 +6,7 @@ import com.sofiiapryhoda.scoreboard.model.Match;
 import com.sofiiapryhoda.scoreboard.validation.MatchInputValidator;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class ScoreBoard {
@@ -30,7 +31,12 @@ public class ScoreBoard {
     }
 
     public List<Match> getSummary() {
-        return List.of();
+        return this.matches.stream()
+            .sorted(
+                 Comparator.comparingInt((Match m) -> m.getHomeScore() + m.getAwayScore())
+                     .reversed()
+                     .thenComparing(Comparator.comparingLong(Match::getStartTime).reversed())
+            ).toList();
     }
 
     private Match findMatch(String homeTeam, String awayTeam) {

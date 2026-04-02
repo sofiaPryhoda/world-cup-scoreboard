@@ -142,15 +142,14 @@ class ScoreBoardTest {
     }
 
     @Test
-    void testGetSummaryShouldReturnMatchesInScoreOrderInCaseScoresAreDifferent() throws InterruptedException {
+    void testGetSummaryShouldReturnMatchesInScoreOrderInCaseScoresAreDifferent() {
         scoreBoard.startMatch(TEAM_A, TEAM_B);
-        Thread.sleep(3);
         scoreBoard.startMatch(TEAM_C, TEAM_D);
 
         scoreBoard.updateScore(TEAM_A, TEAM_B, 1, 1);
         scoreBoard.updateScore(TEAM_C, TEAM_D, 2, 2);
 
-        List<Match> matches = scoreBoard.getMatches();
+        List<Match> matches = scoreBoard.getSummary();
 
         assertEquals(2, matches.size());
 
@@ -174,17 +173,17 @@ class ScoreBoardTest {
         scoreBoard.updateScore(TEAM_A, TEAM_B, 1, 1);
         scoreBoard.updateScore(TEAM_C, TEAM_D, 1, 1);
 
-        List<Match> matches = scoreBoard.getMatches();
+        List<Match> matches = scoreBoard.getSummary();
 
         assertEquals(2, matches.size());
 
-        assertEquals(TEAM_A, matches.get(0).getHomeTeam());
-        assertEquals(TEAM_B, matches.get(0).getAwayTeam());
+        assertEquals(TEAM_C, matches.get(0).getHomeTeam());
+        assertEquals(TEAM_D, matches.get(0).getAwayTeam());
         assertEquals(1, matches.get(0).getHomeScore());
         assertEquals(1, matches.get(0).getAwayScore());
 
-        assertEquals(TEAM_C, matches.get(1).getHomeTeam());
-        assertEquals(TEAM_D, matches.get(1).getAwayTeam());
+        assertEquals(TEAM_A, matches.get(1).getHomeTeam());
+        assertEquals(TEAM_B, matches.get(1).getAwayTeam());
         assertEquals(1, matches.get(1).getHomeScore());
         assertEquals(1, matches.get(1).getAwayScore());
     }
