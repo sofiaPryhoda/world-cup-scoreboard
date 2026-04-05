@@ -9,10 +9,10 @@ public class Match {
     private int homeScore;
     private int awayScore;
 
-    public Match(String homeTeam, String awayTeam, long startTime) {
+    public Match(String homeTeam, String awayTeam) {
         this.homeTeam = homeTeam;
         this.awayTeam = awayTeam;
-        this.startTime = startTime;
+        this.startTime = System.currentTimeMillis();
     }
 
     public String getHomeTeam() {
@@ -39,7 +39,6 @@ public class Match {
         if (newHomeScore < 0 || newAwayScore < 0) {
             throw new InvalidScoreException("Scores must be non-negative");
         }
-
         if (newHomeScore < this.homeScore || newAwayScore < this.awayScore) {
             throw new InvalidScoreException("Scores cannot decrease");
         }
