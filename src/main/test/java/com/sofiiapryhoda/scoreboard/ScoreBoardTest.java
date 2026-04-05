@@ -31,7 +31,6 @@ class ScoreBoardTest {
         scoreBoard.startMatch(TEAM_A, TEAM_B);
 
         List<Match> matches = scoreBoard.getMatches();
-
         assertEquals(1, matches.size());
         Match match = matches.get(0);
 
@@ -41,9 +40,33 @@ class ScoreBoardTest {
         assertEquals(0, match.getAwayScore());
     }
 
+    @ParameterizedTest
+    @MethodSource("normalizationCasesTestData")
+    void testShouldNormalizeTeamsNamesAndSuccessfullyStartMatch(String homeTeam, String awayTeam) {
+        scoreBoard.startMatch(homeTeam, awayTeam);
+
+        List<Match> matches = scoreBoard.getMatches();
+        assertEquals(1, matches.size());
+        Match match = matches.get(0);
+
+        assertEquals("Team A", match.getHomeTeam());
+        assertEquals("Team B", match.getAwayTeam());
+        assertEquals(0, match.getHomeScore());
+        assertEquals(0, match.getAwayScore());
+    }
+
     @Test
     void testStartMatchShouldNotAllowDuplicateMatches() {
         scoreBoard.startMatch(TEAM_A, TEAM_B);
+
+        List<Match> matches = scoreBoard.getMatches();
+        assertEquals(1, matches.size());
+        Match match = matches.get(0);
+
+        assertEquals(TEAM_A, match.getHomeTeam());
+        assertEquals(TEAM_B, match.getAwayTeam());
+        assertEquals(0, match.getHomeScore());
+        assertEquals(0, match.getAwayScore());
 
         MatchAlreadyExistException exception = assertThrows(MatchAlreadyExistException.class, () -> scoreBoard.startMatch(TEAM_A, TEAM_C));
 
@@ -52,7 +75,7 @@ class ScoreBoardTest {
 
     @Test
     void testShouldNotAllowStartMatchWithSameTeam() {
-        assertThrows(MatchAlreadyExistException.class, () -> scoreBoard.startMatch(TEAM_A, TEAM_A));
+        assertThrows(InvalidMatchException.class, () -> scoreBoard.startMatch(TEAM_A, TEAM_A));
     }
 
     @ParameterizedTest
@@ -66,17 +89,37 @@ class ScoreBoardTest {
     @Test
     void testShouldUpdateScore() {
        scoreBoard.startMatch(TEAM_A, TEAM_B);
-       scoreBoard.updateScore(TEAM_A, TEAM_B, 1, 1);
 
        List<Match> matches = scoreBoard.getMatches();
        Match match = matches.get(0);
+       assertEquals(0, match.getHomeScore());
+       assertEquals(0, match.getAwayScore());
+
+       scoreBoard.updateScore(TEAM_A, TEAM_B, 1, 1);
+
        assertEquals(1, match.getHomeScore());
        assertEquals(1, match.getAwayScore());
     }
 
+    @ParameterizedTest
+    @MethodSource("normalizationCasesTestData")
+    void testShouldNormalizeTeamsNamesAndSuccessfullyUpdateScore(String homeTeam, String awayTeam) {
+        scoreBoard.startMatch(homeTeam, awayTeam);
+
+        List<Match> matches = scoreBoard.getMatches();
+        Match match = matches.get(0);
+        assertEquals(0, match.getHomeScore());
+        assertEquals(0, match.getAwayScore());
+
+        scoreBoard.updateScore(homeTeam, awayTeam, 1, 1);
+
+        assertEquals(1, match.getHomeScore());
+        assertEquals(1, match.getAwayScore());
+    }
+
     @Test
     void testShouldNotAllowUpdateScoreForNonExistingTeam() {
-        MatchNotFoundException exception = assertThrows(MatchNotFoundException.class, () -> scoreBoard.updateScore(TEAM_A, TEAM_B, -1, 1));
+        MatchNotFoundException exception = assertThrows(MatchNotFoundException.class, () -> scoreBoard.updateScore(TEAM_A, TEAM_B, 1, 1));
 
         assertEquals(getExpectedErrorMessageForNonFoundMatch(TEAM_A, TEAM_B), exception.getMessage());
     }
@@ -84,6 +127,11 @@ class ScoreBoardTest {
     @Test
     void testShouldNotAllowNegativeScores() {
         scoreBoard.startMatch(TEAM_A, TEAM_B);
+
+        List<Match> matches = scoreBoard.getMatches();
+        Match match = matches.get(0);
+        assertEquals(0, match.getHomeScore());
+        assertEquals(0, match.getAwayScore());
 
         InvalidScoreException exception = assertThrows(InvalidScoreException.class, () -> scoreBoard.updateScore(TEAM_A, TEAM_B, -1, 1));
 
@@ -93,7 +141,16 @@ class ScoreBoardTest {
     @Test
     void testShouldNotAllowDecreaseScores() {
         scoreBoard.startMatch(TEAM_A, TEAM_B);
+
+        List<Match> matches = scoreBoard.getMatches();
+        Match match = matches.get(0);
+        assertEquals(0, match.getHomeScore());
+        assertEquals(0, match.getAwayScore());
+
         scoreBoard.updateScore(TEAM_A, TEAM_B, 3, 2);
+
+        assertEquals(3, match.getHomeScore());
+        assertEquals(2, match.getAwayScore());
 
         InvalidScoreException exception = assertThrows(InvalidScoreException.class, () -> scoreBoard.updateScore(TEAM_A, TEAM_B, 2, 1));
 
@@ -117,6 +174,41 @@ class ScoreBoardTest {
         assertEquals(TEAM_D, match.getAwayTeam());
     }
 
+    @ParameterizedTest
+    @MethodSource("normalizationCasesTestData")
+    void testShouldNormalizeTeamsNamesAndSuccessfullyRemoveMatchOnceFinished(String homeTeam, String awayTeam) {
+        scoreBoard.startMatch("Team A", "Team B");
+        scoreBoard.startMatch(TEAM_C, TEAM_D);
+
+        List<Match> matches = scoreBoard.getMatches();
+        assertEquals(2, matches.size());
+
+        scoreBoard.finishMatch(homeTeam, awayTeam);
+
+        assertEquals(1, matches.size());
+
+        Match match = matches.get(0);
+        assertEquals(TEAM_C, match.getHomeTeam());
+        assertEquals(TEAM_D, match.getAwayTeam());
+    }
+
+    @Test
+    void testShouldSuccessfullyRemoveMatchWhenTeamNamesAreSwaped() {
+        scoreBoard.startMatch(TEAM_A, TEAM_B);
+        scoreBoard.startMatch(TEAM_C, TEAM_D);
+
+        List<Match> matches = scoreBoard.getMatches();
+        assertEquals(2, matches.size());
+
+        scoreBoard.finishMatch(TEAM_B, TEAM_A);
+
+        assertEquals(1, matches.size());
+
+        Match match = matches.get(0);
+        assertEquals(TEAM_C, match.getHomeTeam());
+        assertEquals(TEAM_D, match.getAwayTeam());
+    }
+
     @Test
     void testShouldNotAllowFinishNonExistingMatch() {
         MatchNotFoundException exception = assertThrows(MatchNotFoundException.class, () -> scoreBoard.finishMatch(TEAM_A, TEAM_B));
@@ -128,17 +220,17 @@ class ScoreBoardTest {
     void testShouldNotAllowFinishMatchWithSameTeams() {
         scoreBoard.startMatch(TEAM_A, TEAM_B);
 
-        MatchNotFoundException exception = assertThrows(MatchNotFoundException.class, () -> scoreBoard.finishMatch(TEAM_A, TEAM_A));
+        InvalidMatchException exception = assertThrows(InvalidMatchException.class, () -> scoreBoard.finishMatch(TEAM_A, TEAM_A));
 
-        assertEquals(getExpectedErrorMessageForNonFoundMatch(TEAM_A, TEAM_A), exception.getMessage());
+        assertEquals("Home team and away team cannot be the same", exception.getMessage());
     }
 
     @ParameterizedTest
     @MethodSource("invalidTeamsNamesTestData")
-    void testShouldNotAllowFinishMatchWithInvalidTeamName(String homeTeam, String awayTeam) {
-        MatchNotFoundException exception = assertThrows(MatchNotFoundException.class, () -> scoreBoard.finishMatch(homeTeam, awayTeam));
+    void testShouldNotAllowFinishMatchWithInvalidTeamName(String homeTeam, String awayTeam, String errorMessage) {
+        InvalidMatchException exception = assertThrows(InvalidMatchException.class, () -> scoreBoard.finishMatch(homeTeam, awayTeam));
 
-        assertEquals(getExpectedErrorMessageForNonFoundMatch(homeTeam, awayTeam), exception.getMessage());
+        assertEquals(errorMessage, exception.getMessage());
     }
 
     @Test
@@ -189,15 +281,22 @@ class ScoreBoardTest {
     }
 
     @Test
-    void testGetSummaryShouldReturnEmptyListWhenNoMatches() {
+    void testGetSummaryShouldReturnEmptyListWhenNoActiveMatches() {
         assertEquals(0, scoreBoard.getSummary().size());
     }
 
     private static Stream<Arguments> invalidTeamsNamesTestData() {
         return Stream.of(
-            Arguments.of("Team@123", TEAM_C, "Team name must start from capital letter and contain only letters and spaces"),
+            Arguments.of("Team@123", TEAM_C, "Invalid team name format (contains invalid characters): Team@123"),
             Arguments.of("", TEAM_C, "Team name cannot be null or empty"),
             Arguments.of("  ", TEAM_C, "Team name cannot be null or empty")
+        );
+    }
+
+    private static Stream<Arguments> normalizationCasesTestData() {
+        return Stream.of(
+            Arguments.of("    Team A", "Team B    "),
+            Arguments.of("Team     A", "   Team   B    ")
         );
     }
 
